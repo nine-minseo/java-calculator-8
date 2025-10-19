@@ -14,23 +14,38 @@ public class Application {
         Matcher matcher = pattern.matcher(inputString);
 
         if (inputString.isEmpty()) {
-            sum = 0;
-        } else {
-            if (matcher.matches()) {
-                String customDelimiter = matcher.group(1);
-                String stringToCheck = matcher.group(2);
+            System.out.println("결과 : 0");
+            return;
+        }
 
-                String delimiter = Pattern.quote(customDelimiter) + "|,|:";
-                String[] digitArr = stringToCheck.split(delimiter);
-                for (String digit : digitArr) {
-                    sum += Integer.parseInt(digit);
-                }
-            } else {
-                String[] digitArr = inputString.split("[,|:]");
-                for (String digit : digitArr) {
-                    sum += Integer.parseInt(digit);
-                }
+        String[] digitArr;
+        String digitAndDelimiter;
+        if (matcher.matches()) {
+            String customDelimiter = matcher.group(1);
+            String quotedCustomDelimiter = Pattern.quote(customDelimiter);
+            String delimiter = quotedCustomDelimiter + "|,|:";
+            digitAndDelimiter = "^([0-9]+|,|(" + quotedCustomDelimiter + "))$";
+
+            String stringToCheck = matcher.group(2);
+            digitArr = stringToCheck.split(delimiter);
+        } else {
+            digitAndDelimiter = "^([0-9]+|,|:)$";
+            digitArr = inputString.split("[,:]");
+        }
+
+        Pattern numOrDelimiterPattern = Pattern.compile(digitAndDelimiter);
+
+        for (String digit : digitArr) {
+            if (!numOrDelimiterPattern.matcher(digit).matches()) {
+                throw new IllegalArgumentException();
             }
+        }
+        for (String digit : digitArr) {
+            int num = Integer.parseInt(digit);
+            if (num < 0) {
+                throw new IllegalArgumentException();
+            }
+            sum += num;
         }
         System.out.println("결과 : " + sum);
     }
